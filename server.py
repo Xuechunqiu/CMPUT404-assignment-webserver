@@ -54,10 +54,10 @@ class MyWebServer(socketserver.BaseRequestHandler):
             # print(reqURI, directories)
             level = 0
             for d in directories:
-                if d != "..":  # go to folder
-                    level += 1
-                elif d == "..":  # go back
+                if d == "..":  # go back
                     level -= 1
+                else:  # go to folder
+                    level += 1
                 if level < 0:  # out
                     return self.pageNotFound()
 
@@ -68,17 +68,15 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 if os.path.isdir(reqPath):
                     reqPath += '/'
                     return self.movedPermanently(reqURI + '/')
-            # print("1", reqPath)
+
             if not os.path.isfile(reqPath):
                 # The webserver can return index.html from directories (paths that end in /)
                 if reqPath[-1] == '/':
                     reqPath += "index.html"
                 else:  # The webserver can server 404 errors for paths not found
                     return self.pageNotFound()
-            # print("3", reqPath)
 
             if not os.path.exists(reqPath):
-                # print('not a exist path')
                 return self.pageNotFound()
 
             # open file
@@ -86,7 +84,6 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 with open(reqPath, 'r') as f:
                     body = f.read()
             except:
-                # print("Invalid file path")
                 return self.pageNotFound()
 
             # content type
